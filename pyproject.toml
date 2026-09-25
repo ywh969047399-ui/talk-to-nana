@@ -2,9 +2,10 @@
 name = "deepseek-talk-to-me"
 version = "0.1.0"
 description = "实时语音 Agent：用叶会羽的人格和记忆进行语音对话，并沉淀记忆。"
-requires-python = ">=3.11,<3.15"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "livekit-agents[google]~=1.5",
+    "livekit-plugins-cartesia~=1.5",
     "python-dotenv>=1.1.1",
     "httpx>=0.28.0",
 ]

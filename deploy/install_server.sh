@@ -32,7 +32,7 @@ install -d -o talkfengge -g talkfengge "${APP_DIR}" "${CONFIG_DIR}"
 chown -R talkfengge:talkfengge "${APP_DIR}"
 
 cd "${APP_DIR}"
-sudo -u talkfengge uv sync --python 3.13 --no-dev
+runuser -u talkfengge -- uv sync --python 3.12 --no-dev
 
 if [[ ! -f "${CONFIG_DIR}/livekit.yaml" ]]; then
   LIVEKIT_API_KEY="lk_$(openssl rand -hex 8)"
@@ -86,7 +86,8 @@ for key, value in updates.items():
 path.write_text("\n".join(result) + "\n", encoding="utf-8")
 PY
 
-chown talkfengge:talkfengge "${APP_DIR}/.env.local"
+chown talkfengge:talkfengge "${APP_DIR}/.env.local" "${CONFIG_DIR}/livekit.yaml"
+chmod 750 "${CONFIG_DIR}"
 chmod 600 "${APP_DIR}/.env.local" "${CONFIG_DIR}/livekit.yaml"
 
 cat > /etc/systemd/system/talk-livekit.service <<EOF
@@ -228,3 +229,4 @@ sleep 5
 curl -fsS http://127.0.0.1:8766/health
 echo
 systemctl --no-pager --full status talk-livekit talk-web talk-worker | sed -n '1,90p'
+
