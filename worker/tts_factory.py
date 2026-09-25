@@ -78,6 +78,9 @@ def _build_minimax() -> Tuple[object, str]:
     model = os.getenv("MINIMAX_MODEL", "speech-02-turbo").strip()
     sample_rate = int(os.getenv("MINIMAX_SAMPLE_RATE", "24000").strip())
     language_boost = os.getenv("MINIMAX_LANGUAGE_BOOST", "Chinese").strip()
+    speed = float(os.getenv("MINIMAX_SPEED", "1.0").strip())
+    vol = float(os.getenv("MINIMAX_VOL", "1.0").strip())
+    pitch = int(os.getenv("MINIMAX_PITCH", "0").strip())
 
     if not api_key:
         raise RuntimeError("MINIMAX_API_KEY not set in .env.local")
@@ -90,8 +93,11 @@ def _build_minimax() -> Tuple[object, str]:
         model=model,
         sample_rate=sample_rate,
         language_boost=language_boost,
+        speed=speed,
+        vol=vol,
+        pitch=pitch,
     )
-    label = f"minimax:{model}/{voice_id[:12]}/{language_boost}/{sample_rate}Hz"
+    label = f"minimax:{model}/{voice_id[:12]}/{language_boost}/{sample_rate}Hz/speed={speed}/pitch={pitch}"
     return tts, label
 
 

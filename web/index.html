@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Talk to Me V3.6 — 峰哥</title>
+<title>Talk to Me V3.6 — 娜娜</title>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
@@ -182,7 +182,7 @@
 <div id="ui">
     <div id="topBar">
         <select id="modelSelect">
-            <option value="minimax">峰哥 · MiniMax</option>
+            <option value="minimax">娜娜 · MiniMax</option>
         </select>
         <div id="statusPill">
             <span id="statusDot" class="ready"></span>
@@ -226,7 +226,7 @@ function bootTalkToMe() {
     const PARTICLE_COUNT = 5000;
 
     const MODEL_NAMES = {
-        minimax: '峰哥',
+        minimax: '娜娜',
     };
 
     // ================================================================
@@ -817,8 +817,12 @@ function bootTalkToMe() {
     // ================================================================
     //  LIVEKIT CONNECTION  (tested, working logic — do not modify)
     // ================================================================
-    const TOKEN_URL = window.location.origin + '/token';
-    const LIVEKIT_URL = 'ws://127.0.0.1:7880';
+    const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
+    const TOKEN_URL = LOCAL_HOSTS.has(window.location.hostname)
+        ? window.location.origin + '/token'
+        : 'https://api.45-32-18-32.sslip.io/token';
+    const HEALTH_URL = TOKEN_URL.replace(/\/token$/, '/health');
+    const DEFAULT_LIVEKIT_URL = 'ws://127.0.0.1:7880';
 
     function getRoomName() {
         const sel = document.getElementById('modelSelect');
@@ -840,7 +844,7 @@ function bootTalkToMe() {
         }
         const data = await resp.json();
         if (!data.token) throw new Error('Token 为空');
-        return data.token;
+        return data;
     }
 
     let room = null;
@@ -856,7 +860,10 @@ function bootTalkToMe() {
         setStatus('connecting');
 
         try {
-            const token = await getToken();
+            const tokenData = await getToken();
+            const token = tokenData.token;
+            const livekitUrl = tokenData.livekit_url || DEFAULT_LIVEKIT_URL;
+            console.log('[livekit] connecting to', livekitUrl, 'room', tokenData.room);
 
             room = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
 
@@ -905,7 +912,7 @@ function bootTalkToMe() {
                 if (text) showTranscript(text);
             });
 
-            await room.connect(LIVEKIT_URL, token);
+            await room.connect(livekitUrl, token);
 
             try {
                 await room.localParticipant.setMicrophoneEnabled(true);
@@ -925,7 +932,9 @@ function bootTalkToMe() {
             console.error(err);
             connecting = false;
             connected = false;
+            const detail = err && err.message ? err.message : String(err || 'unknown error');
             setStatus('error', '连接失败');
+            showToast('连接失败：' + detail);
             micButton.classList.remove('connected', 'speaking');
             if (room) { try { room.disconnect(); } catch (_) {} room = null; }
         }
@@ -947,10 +956,10 @@ function bootTalkToMe() {
 
     // startup: check LiveKit availability
     function checkLiveKit() {
-        fetch(LIVEKIT_URL.replace('ws://', 'http://'))
-            .then((r) => r.text())
-            .then((t) => {
-                if (t.includes('OK')) {
+        fetch(HEALTH_URL)
+            .then((r) => r.json())
+            .then((data) => {
+                if (data.status === 'ok') {
                     livekitReady = true;
                     setStatus('ready');
                 } else {

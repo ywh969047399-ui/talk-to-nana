@@ -6,6 +6,7 @@ import asyncio
 import json
 import os
 import secrets
+import sys
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 
@@ -22,6 +23,21 @@ from worker.runtime_env import (
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 WEB_DIR = PROJECT_ROOT / "web"
+
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
+
+def safe_print(*args, **kwargs) -> None:
+    try:
+        print(*args, **kwargs)
+    except UnicodeEncodeError:
+        text = " ".join(str(arg) for arg in args)
+        print(text.encode("utf-8", errors="replace").decode("utf-8"), **kwargs)
+
 
 # 阶段 20 修复：web 是 nohup 后台拉，**不继承 shell env**，必须自己 load_dotenv
 # 否则 AGENT_NAME 走默认值 "talk-to-me-agent"，跟 worker 的 "talk-to-me-dev3" 不匹配，
@@ -70,26 +86,26 @@ def create_room_and_token(room_base: str, identity: str, name: str) -> dict:
         target_agent = _PROVIDER_TO_AGENT["gemini"]
     else:
         target_agent = AGENT_NAME  # 兼容老 room 名
-    print(f"[web] 路由 room='{room_name}' → agent='{target_agent}'", flush=True)
+    safe_print(f"[web] 路由 room='{room_name}' -> agent='{target_agent}'", flush=True)
 
     async def ensure_room_and_dispatch() -> None:
         with local_service_env():
             lk = lk_api.LiveKitAPI(host, API_KEY, API_SECRET)
             try:
                 await lk.room.create_room(CreateRoomRequest(name=room_name))
-                print(f"[web] ✅ 房间 '{room_name}' 已创建")
+                safe_print(f"[web] OK 房间 '{room_name}' 已创建")
             except Exception as e:
                 err_str = str(e)
                 if "already" not in err_str.lower() and "409" not in err_str:
-                    print(f"[web] 创建房间异常（非致命）: {e}")
+                    safe_print(f"[web] 创建房间异常（非致命）: {e}")
                 else:
-                    print(f"[web] 房间 '{room_name}' 已存在，复用")
+                    safe_print(f"[web] 房间 '{room_name}' 已存在，复用")
 
             try:
                 await lk.agent_dispatch.create_dispatch(
                     CreateAgentDispatchRequest(agent_name=target_agent, room=room_name)
                 )
-                print(f"[web] ✅ 已 dispatch agent: {target_agent} -> {room_name}")
+                safe_print(f"[web] OK 已 dispatch agent: {target_agent} -> {room_name}")
             finally:
                 await lk.aclose()
 
@@ -115,6 +131,12 @@ class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(WEB_DIR), **kwargs)
 
+    def do_GET(self):
+        if self.path == "/health":
+            self._send_json(200, {"status": "ok"})
+            return
+        super().do_GET()
+
     def do_POST(self):
         if self.path == "/token":
             content_length = int(self.headers.get("Content-Length", 0))
@@ -135,8 +157,8 @@ class Handler(SimpleHTTPRequestHandler):
             self._send_json(404, {"error": "not found"})
 
     def do_OPTIONS(self):
-        self._cors_headers()
         self.send_response(204)
+        self._cors_headers()
         self.end_headers()
 
     def _send_json(self, status: int, data: dict):
@@ -153,20 +175,21 @@ class Handler(SimpleHTTPRequestHandler):
 
     def end_headers(self):
         self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Cache-Control", "no-store, max-age=0")
         super().end_headers()
 
     def log_message(self, format, *args):
-        print(f"[web] {args[0]}")
+        safe_print(f"[web] {args[0]}")
 
 
 def main():
     port = int(os.getenv("WEB_PORT", "8766"))
     server = HTTPServer(("127.0.0.1", port), Handler)
-    print(f"[web] http://127.0.0.1:{port}", flush=True)
+    safe_print(f"[web] http://127.0.0.1:{port}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\n[web] 已停止")
+        safe_print("\n[web] 已停止")
         server.server_close()
 
 

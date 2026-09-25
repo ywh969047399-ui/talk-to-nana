@@ -10,7 +10,16 @@ import time
 from pathlib import Path
 
 from dotenv import load_dotenv
-from livekit.agents import Agent, AgentServer, AgentSession, JobContext, JobExecutorType, cli, llm
+from livekit.agents import (
+    APIConnectionError,
+    Agent,
+    AgentServer,
+    AgentSession,
+    JobContext,
+    JobExecutorType,
+    cli,
+    llm,
+)
 from livekit.agents.types import NOT_GIVEN, DEFAULT_API_CONNECT_OPTIONS  # 阶段 29.1
 from livekit.agents import utils  # 阶段 29.1: shortuuid
 # 关键：livekit-plugins-cartesia 的 @Plugin 装饰器要求主线程 import
@@ -134,8 +143,9 @@ class _OpenAICompatLLMStream(llm.LLMStream):
                 self._event_ch.send_nowait(chat_chunk)
         except Exception as exc:
             print(f"[llm] openai-compat error: {exc!r} (messages={len(messages)})", flush=True)
-            raise llm.APIConnectionError(
-                f"openai-compat LLM error: {exc!r}"
+            raise APIConnectionError(
+                f"openai-compat LLM error: {exc!r}",
+                retryable=False,
             ) from exc
 
 
@@ -336,10 +346,10 @@ class Dev3Agent(Agent):
         # 阶段 23：TTS 按 TTS_PROVIDER 选实现（cartesia / minimax / moss）
         tts_instance, tts_label = build_tts(TTS_PROVIDER, MOSS_TTS_URL, MOSS_VOICE_PROFILE)
         vad_instance = EnergyVAD(
-            speech_threshold=500,
-            silence_threshold=200,
-            min_speech_duration=0.4,
-            min_silence_duration=0.5,
+            speech_threshold=int(os.getenv("VAD_SPEECH_THRESHOLD", "750")),
+            silence_threshold=int(os.getenv("VAD_SILENCE_THRESHOLD", "300")),
+            min_speech_duration=float(os.getenv("VAD_MIN_SPEECH_DURATION", "0.25")),
+            min_silence_duration=float(os.getenv("VAD_MIN_SILENCE_DURATION", "0.30")),
         )
         print(f"[agent] Dev3Agent components: STT={stt_instance.model} LLM={self._llm_label()} TTS={tts_label} VAD={vad_instance.model}", flush=True)
 
@@ -656,7 +666,11 @@ async def entrypoint(ctx: JobContext) -> None:
     memory_block = build_memory_block(max_chars=800)
     print(f"[memory] recall block built chars={len(memory_block)} elapsed={time.time() - t0:.3f}s", flush=True)
     if memory_block:
-        memory_owner = "峰哥" if persona_name == "fengge" else "叶会羽"
+        memory_owner = {
+            "fengge": "峰哥",
+            "nana": "娜娜",
+            "yehuiyu": "叶会羽",
+        }.get(persona_name, persona_name)
         instructions = (
             f"{instructions}\n\n## 关于{memory_owner}的记忆快照\n"
             f"以下是启动时从本地记忆系统拉取的快照。"
