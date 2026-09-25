@@ -1,12 +1,12 @@
-# Talk to 峰哥
+# Talk to 娜娜
 
 [English](README_EN.md)
 
 **实时语音对话 + 音色克隆 + 人格注入，工程延迟 < 1 秒。**
 
-和 B 站百万粉丝博主「峰哥亡命天涯」的 AI 分身实时语音聊天。不是文字转语音——是真的像打电话一样聊天，声音和性格都是峰哥的。
+和娜娜的 AI 分身实时语音聊天。不是文字转语音——是真的像打电话一样聊天，声音和性格都已按娜娜定制。
 
-峰哥是这套架构的第一个完整示例。架构上支持替换成其他人——你需要准备语音素材和人格描述，具体见下方「[换成其他人的声音和性格](#换成其他人的声音和性格)」章节。
+本项目基于 Talk to Fengge 的实时语音架构改造，当前部署的人格和音色为娜娜。架构仍支持替换成其他人——你需要准备语音素材和人格描述，具体见下方「[换成其他人的声音和性格](#换成其他人的声音和性格)」章节。
 
 > [Demo 视频（5.6 万+ 围观）](https://x.com/leaf_sanren/status/2069342335268507976)
 
@@ -55,8 +55,8 @@
 ### 最简单的方式：让 AI 编程助手帮你配
 
 ```bash
-git clone https://github.com/YeJe-cpu/talk-to-fengge.git
-cd talk-to-fengge
+git clone https://github.com/ywh969047399-ui/talk-to-nana.git
+cd talk-to-nana
 ```
 
 然后把这个项目扔给任何 AI 编程助手——[Claude Code](https://claude.ai/code)、[Cursor](https://cursor.com/)、[Codex](https://openai.com/codex)、[Windsurf](https://codeium.com/windsurf)，或者你用的其他工具都行。告诉它「帮我配置并启动这个项目」，Agent 会读取 `.env.example`，引导你填 API key、装依赖、启动服务。
@@ -199,7 +199,7 @@ AI 助手会读现有的峰哥人格作为模板，通过跟你对话提取关�
 - [ ] 一键部署 + 自动抓取素材生成 persona（自动化人格蒸馏）
 - [ ] 更多克隆人格模板
 
-**欢迎在 [Issues](https://github.com/YeJe-cpu/talk-to-fengge/issues) 告诉我你最想要哪个功能。**
+**欢迎在 [Issues](https://github.com/ywh969047399-ui/talk-to-nana/issues) 告诉我你最想要哪个功能。**
 
 ## Star / Fork / PR
 
@@ -207,7 +207,7 @@ AI 助手会读现有的峰哥人格作为模板，通过跟你对话提取关�
 
 想贡献代码、新的人格模板、或者改进建议？欢迎 Fork + PR。
 
-有问题？开 [Issue](https://github.com/YeJe-cpu/talk-to-fengge/issues) 聊。
+有问题？开 [Issue](https://github.com/ywh969047399-ui/talk-to-nana/issues) 聊。
 
 想了解更多、交流想法、或者聊合作：
 

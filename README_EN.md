@@ -1,12 +1,12 @@
-# Talk to Fengge
+# Talk to Nana
 
 [中文版](README.md)
 
 **Real-time voice conversation + voice cloning + persona injection. Engineering latency < 1 second.**
 
-Have a real-time voice chat with the AI clone of Fengge (峰哥亡命天涯), a Chinese content creator with 1M+ followers on Bilibili. It's not text-to-speech — it's like a real phone call, with his cloned voice and personality.
+Have a real-time voice chat with Nana's AI persona. It's not ordinary text-to-speech — it is designed to feel like a phone call, with a customized voice and personality.
 
-Fengge is the first fully working example of this architecture. It supports swapping to other people — you'll need voice samples and a personality description. See the "[Swap to Another Voice and Personality](#swap-to-another-voice-and-personality)" section below.
+This project is customized from the Talk to Fengge real-time voice architecture, with Nana as the currently deployed voice and persona. It still supports swapping to other people; see "[Swap to Another Voice and Personality](#swap-to-another-voice-and-personality)" below.
 
 > [Demo video (56K+ views)](https://x.com/leaf_sanren/status/2069342335268507976)
 
@@ -55,8 +55,8 @@ Switch with one line in `.env.local`:
 ### Easiest Way: Let an AI Coding Assistant Help
 
 ```bash
-git clone https://github.com/YeJe-cpu/talk-to-fengge.git
-cd talk-to-fengge
+git clone https://github.com/ywh969047399-ui/talk-to-nana.git
+cd talk-to-nana
 ```
 
 Open this project in any AI coding assistant — [Claude Code](https://claude.ai/code), [Cursor](https://cursor.com/), [Codex](https://openai.com/codex), [Windsurf](https://codeium.com/windsurf), or whatever you use — and ask it to help you set up and run the project.
@@ -199,7 +199,7 @@ Richer source material (chat logs, speech transcripts, social media content, vid
 - [ ] One-click deploy + automated persona distillation (auto-extract material → generate persona)
 - [ ] More persona templates
 
-**Tell me what you want most in [Issues](https://github.com/YeJe-cpu/talk-to-fengge/issues).**
+**Tell me what you want most in [Issues](https://github.com/ywh969047399-ui/talk-to-nana/issues).**
 
 ## Star / Fork / PR
 
@@ -207,7 +207,7 @@ If you find this project interesting, please Star it.
 
 Want to contribute code, new persona templates, or improvements? Fork + PR welcome.
 
-Questions? Open an [Issue](https://github.com/YeJe-cpu/talk-to-fengge/issues).
+Questions? Open an [Issue](https://github.com/ywh969047399-ui/talk-to-nana/issues).
 
 Want to learn more, exchange ideas, or explore collaboration:
 
