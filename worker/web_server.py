@@ -158,12 +158,10 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_OPTIONS(self):
         self.send_response(204)
-        self._cors_headers()
         self.end_headers()
 
     def _send_json(self, status: int, data: dict):
         self.send_response(status)
-        self._cors_headers()
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
@@ -174,7 +172,7 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
     def end_headers(self):
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self._cors_headers()
         self.send_header("Cache-Control", "no-store, max-age=0")
         super().end_headers()
 
