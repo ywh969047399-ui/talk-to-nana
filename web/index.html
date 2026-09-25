@@ -2,12 +2,13 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Talk to Me V3.6 — 娜娜</title>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
         width: 100%; height: 100%;
+        min-height: 100dvh;
         background: #000;
         overflow: hidden;
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif;
@@ -37,7 +38,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 20px 28px;
+        padding: calc(20px + env(safe-area-inset-top)) calc(28px + env(safe-area-inset-right)) 20px calc(28px + env(safe-area-inset-left));
     }
     #modelSelect {
         pointer-events: auto;
@@ -101,6 +102,8 @@
         padding: 10px 22px;
         font-size: 14px;
         color: #ffd699;
+        max-width: min(680px, calc(100vw - 32px));
+        text-align: center;
         opacity: 0;
         transition: opacity 0.35s ease, transform 0.35s ease;
     }
@@ -113,7 +116,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding-bottom: 44px;
+        padding: 0 calc(16px + env(safe-area-inset-right)) calc(44px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
         gap: 14px;
     }
     #micButton {
@@ -128,6 +131,8 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
         outline: none;
         transition: border-color 0.4s ease, box-shadow 0.5s ease, transform 0.3s ease, background 0.4s ease;
     }
@@ -173,6 +178,73 @@
     }
     #transcript.active { opacity: 1; }
     #transcript.idle   { opacity: 0.3; transition: opacity 1.2s ease; }
+
+    @media (max-width: 640px) {
+        #topBar {
+            gap: 10px;
+            padding-top: calc(12px + env(safe-area-inset-top));
+            padding-right: calc(12px + env(safe-area-inset-right));
+            padding-left: calc(12px + env(safe-area-inset-left));
+        }
+        #modelSelect {
+            min-width: 0;
+            max-width: 52vw;
+            padding: 9px 30px 9px 13px;
+            background-position: right 11px center;
+        }
+        #statusPill {
+            flex: 0 0 auto;
+            gap: 6px;
+            padding: 9px 13px;
+            font-size: 13px;
+        }
+        #toast {
+            top: calc(66px + env(safe-area-inset-top));
+            border-radius: 16px;
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+        #bottomControls {
+            gap: 10px;
+            padding-bottom: calc(22px + env(safe-area-inset-bottom));
+        }
+        #micButton {
+            width: 68px;
+            height: 68px;
+        }
+        #transcript {
+            width: 100%;
+            max-width: 100%;
+            padding: 0 10px;
+            font-size: clamp(17px, 4.8vw, 20px);
+        }
+    }
+
+    @media (max-height: 520px) and (orientation: landscape) {
+        #topBar {
+            padding-top: calc(8px + env(safe-area-inset-top));
+        }
+        #bottomControls {
+            right: calc(18px + env(safe-area-inset-right));
+            left: auto;
+            width: min(52vw, 520px);
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+        }
+        #micButton {
+            width: 58px;
+            height: 58px;
+        }
+        #transcript {
+            font-size: 16px;
+            line-height: 1.35;
+        }
+    }
+
+    @media (hover: none) {
+        #modelSelect:hover { border-color: rgba(255, 255, 255, 0.1); }
+        #micButton:hover { border-color: #444; transform: none; }
+        #micButton:active { transform: scale(0.94); }
+    }
 </style>
 </head>
 <body>
